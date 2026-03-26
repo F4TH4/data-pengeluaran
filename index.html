@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="in-en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Data Pengeluaran</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="card" id="loginBox">
+        <h2>Login</h2>
+        <div class="form">
+            <input type="text" id="username" placeholder="Username" class="input">
+            <input type="password" id="password" placeholder="Password" class="input">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+    <div class="card" id="appBox">
+        <h2>Pengeluaran</h2>
+
+        <div class="form">
+            <input type="date" id="date">
+            <input type="text" id="item" placeholder="Nama Barang">
+            <input type="number" id="price" placeholder="Harga">
+
+            <button onclick="saveData()">Simpan</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Barang</th>
+                        <th>Harga</th>
+                    </tr>
+                </thead>
+                <tbody id="dataBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const USER = "navina";
+        const PASS = "12345";
+
+        function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            if (u === USER && p === PASS) {
+                localStorage.setItem('login', 'true');
+                showApp();
+            } else {
+                alert('Login gagal');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('login');
+            location.reload();
+        }
+
+        function showApp() {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('appBox').style.display = 'block';
+            loadData();
+        }
+
+        window.onload = () => {
+            if (localStorage.getItem('login') === 'true') {
+                showApp();
+            }
+        };
+
+        function saveData() {
+            const date = document.getElementById('date').value;
+            const item = document.getElementById('item').value;
+            const price = document.getElementById('price').value;
+
+            if (!date || !item || !price) {
+                alert('Isi semua dulu');
+                return;
+            }
+
+            const data = {
+                date,
+                item,
+                price
+            };
+
+            let all = JSON.parse(localStorage.getItem('data')) || [];
+            all.push(data);
+            localStorage.setItem('data', JSON.stringify(all));
+
+            fetch("https://script.google.com/macros/s/AKfycbxZ_V0QowVEgZNLg8nidmFpog93FslIIBeXfXjS2tXimewjedeqtYL7GDudeMj8hBa8/exec", {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                })
+                .then(res => console.log("Kirim ke Sheets sukses"))
+                .catch(err => console.log("Error:", err));
+
+            loadData();
+        }
+
+        function loadData() {
+            const tbody = document.getElementById('dataBody');
+            tbody.innerHTML = '';
+
+            let all = JSON.parse(localStorage.getItem('data')) || [];
+
+            all.forEach(d => {
+                const row = `
+    <tr>
+        <td>${d.date}</td>
+        <td>${d.item}</td>
+        <td>Rp ${Number(d.price).toLocaleString()}</td>
+    </tr>
+    `;
+
+                tbody.innerHTML += row;
+            });
+        }
+    </script>
+
+</body>
+
+</html>
