@@ -80,3 +80,18 @@ td {
 tbody tr:hover {
     background: rgba(255, 255, 255, 0.05);
 }
+
+/* hp */
+.card {
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+}
+
+.table-box {
+    overflow-x: auto;
+}
+
+table {
+    min-width: 400px;
+}
